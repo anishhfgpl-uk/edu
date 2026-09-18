@@ -1,0 +1,6 @@
+{
+  "name": "Educate",
+  "description": "Comprehensive school academic portal for tracking student details, daily attendance, class and section management, daily homework and classwork dispatch, live school bus GPS tracking, exam-wise results, fee ledger, and real-time alert notifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@keyframes bounceShort {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-bounce-short {
+  animation: bounceShort 2.5s ease-in-out infinite;
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+  header, nav, footer, button, .print\:hidden {
+    display: none !important;
+  }
+}
+
