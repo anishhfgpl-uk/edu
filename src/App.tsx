@@ -26,7 +26,8 @@ import {
 } from './data/mockData';
 import { playNotificationChime } from './utils/audioAlert';
 import { Header } from './components/Header';
-import { SchoolProfile } from './components/LoginGate';
+import { SchoolProfile, Account, PermissionKey } from './components/LoginGate';
+import { AccessManager } from './components/AccessManager';
 import { NotificationDrawer } from './components/NotificationDrawer';
 import { ToastAlert } from './components/ToastAlert';
 import { StudentProfileCard } from './components/StudentProfileCard';
@@ -53,9 +54,12 @@ import {
   Building2
 } from 'lucide-react';
 
-export default function App({ account, schoolProfile, onLogout }: { account?: { id: string; name: string; role: 'admin' | 'teacher' | 'student' | 'parent' }; schoolProfile?: SchoolProfile; onLogout?: () => void }) {
+export default function App({ account, schoolProfile, onLogout }: { account?: Account; schoolProfile?: SchoolProfile; onLogout?: () => void }) {
   // Navigation & Role States
   const [currentRole, setCurrentRole] = useState<Role>(account?.role === 'parent' ? 'parent' : account?.role === 'student' ? 'student' : 'teacher');
+  const isAdmin = account?.role === 'admin';
+  const permissions = account?.permissions || [];
+  const can = (key: PermissionKey) => isAdmin || permissions.includes(key);
   const [activeTab, setActiveTab] = useState<
     'overview' | 'attendance' | 'homework' | 'classes' | 'bus' | 'results' | 'fees' | 'parent-updates'
   >('overview');
@@ -81,6 +85,8 @@ export default function App({ account, schoolProfile, onLogout }: { account?: { 
   const [activeToast, setActiveToast] = useState<NotificationItem | null>(null);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isAccessManagerOpen, setIsAccessManagerOpen] = useState(false);
+  const [liveProfile, setLiveProfile] = useState<SchoolProfile>(schoolProfile || { name:'Educate Portal School', address:'', phone:'', email:'', website:'', affiliation:'', session:'' });
 
   // When student changes, update student-specific attendance
   const handleStudentChange = (student: Student) => {
@@ -438,23 +444,24 @@ export default function App({ account, schoolProfile, onLogout }: { account?: { 
     { id: 'results', label: isHindi ? 'परीक्षा परिणाम' : 'Exam Results & Marksheet', icon: Award },
     { id: 'fees', label: isHindi ? 'फीस लेज़र' : 'Fees Ledger & Receipts', icon: CreditCard },
     { id: 'parent-updates', label: isHindi ? 'अभिभावक पोर्टल' : 'Parent Portal & Updates', icon: Users },
-  ];
+  ].filter(item => can(item.id as PermissionKey));
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col antialiased">
       
       {/* App Header */}
-      {schoolProfile && (
+      {liveProfile && (
         <div className="bg-indigo-950 text-white px-4 py-2 text-xs">
           <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <span className="font-black">{schoolProfile.name}</span>
-            <span>{schoolProfile.address} • {schoolProfile.phone} • {schoolProfile.email}</span>
+            <span className="font-black">{liveProfile.name}</span>
+            <span>{liveProfile.address} • {liveProfile.phone} • {liveProfile.email}</span>
           </div>
         </div>
       )}
       <Header
         currentRole={currentRole}
         onRoleChange={(role) => {
+          if (!isAdmin && role !== currentRole) return;
           setCurrentRole(role);
           if (role === 'parent') {
             setActiveTab('parent-updates');
@@ -469,7 +476,9 @@ export default function App({ account, schoolProfile, onLogout }: { account?: { 
         onToggleSound={() => setSoundEnabled(!soundEnabled)}
         isHindi={isHindi}
         onToggleLanguage={() => setIsHindi(!isHindi)}
-        onOpenAdminModal={() => setIsAdminModalOpen(true)}
+        onOpenAdminModal={() => can('alerts') && setIsAdminModalOpen(true)}
+        onOpenAccessManager={() => isAdmin && setIsAccessManagerOpen(true)}
+        isAdmin={isAdmin}
       />
 
       {/* Primary Role Indicator Banner */}
@@ -661,9 +670,17 @@ export default function App({ account, schoolProfile, onLogout }: { account?: { 
         isHindi={isHindi}
       />
 
+      {/* Admin Access Manager */}
+      <AccessManager
+        isOpen={isAccessManagerOpen}
+        onClose={() => setIsAccessManagerOpen(false)}
+        profile={liveProfile}
+        onProfileChange={setLiveProfile}
+      />
+
       {/* Teacher / Admin Action Console Modal */}
       <TeacherAdminModal
-        isOpen={isAdminModalOpen}
+        isOpen={isAdminModalOpen && can('alerts')
         onClose={() => setIsAdminModalOpen(false)}
         students={students}
         selectedStudent={selectedStudent}
