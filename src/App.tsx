@@ -680,7 +680,7 @@ export default function App({ account, schoolProfile, onLogout }: { account?: Ac
 
       {/* Teacher / Admin Action Console Modal */}
       <TeacherAdminModal
-        isOpen={isAdminModalOpen && can('alerts')
+        isOpen={isAdminModalOpen && can('alerts')}
         onClose={() => setIsAdminModalOpen(false)}
         students={students}
         selectedStudent={selectedStudent}
