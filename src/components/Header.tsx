@@ -25,6 +25,8 @@ interface HeaderProps {
   isHindi: boolean;
   onToggleLanguage: () => void;
   onOpenAdminModal: () => void;
+  onOpenAccessManager: () => void;
+  isAdmin: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -40,6 +42,8 @@ export const Header: React.FC<HeaderProps> = ({
   isHindi,
   onToggleLanguage,
   onOpenAdminModal,
+  onOpenAccessManager,
+  isAdmin,
 }) => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -140,6 +144,8 @@ export const Header: React.FC<HeaderProps> = ({
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none -ml-3" />
               </div>
             </div>
+
+            {isAdmin && <button onClick={onOpenAccessManager} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold"><ShieldCheck className="w-3.5 h-3.5"/><span className="hidden lg:inline">Admin Access</span></button>}
 
             {/* Teacher Quick Action trigger to test live alerts */}
             <button
