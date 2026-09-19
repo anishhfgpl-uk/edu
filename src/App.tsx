@@ -26,6 +26,7 @@ import {
 } from './data/mockData';
 import { playNotificationChime } from './utils/audioAlert';
 import { Header } from './components/Header';
+import { SchoolProfile } from './components/LoginGate';
 import { NotificationDrawer } from './components/NotificationDrawer';
 import { ToastAlert } from './components/ToastAlert';
 import { StudentProfileCard } from './components/StudentProfileCard';
@@ -52,9 +53,9 @@ import {
   Building2
 } from 'lucide-react';
 
-export default function App() {
+export default function App({ account, schoolProfile, onLogout }: { account?: { id: string; name: string; role: 'admin' | 'teacher' | 'student' | 'parent' }; schoolProfile?: SchoolProfile; onLogout?: () => void }) {
   // Navigation & Role States
-  const [currentRole, setCurrentRole] = useState<Role>('student');
+  const [currentRole, setCurrentRole] = useState<Role>(account?.role === 'parent' ? 'parent' : account?.role === 'student' ? 'student' : 'teacher');
   const [activeTab, setActiveTab] = useState<
     'overview' | 'attendance' | 'homework' | 'classes' | 'bus' | 'results' | 'fees' | 'parent-updates'
   >('overview');
@@ -443,6 +444,14 @@ export default function App() {
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col antialiased">
       
       {/* App Header */}
+      {schoolProfile && (
+        <div className="bg-indigo-950 text-white px-4 py-2 text-xs">
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <span className="font-black">{schoolProfile.name}</span>
+            <span>{schoolProfile.address} • {schoolProfile.phone} • {schoolProfile.email}</span>
+          </div>
+        </div>
+      )}
       <Header
         currentRole={currentRole}
         onRoleChange={(role) => {
